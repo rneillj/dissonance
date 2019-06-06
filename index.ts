@@ -12,4 +12,4 @@ client.on("message", (msg) => {
     }
 });
 
-client.login("");
+client.login(process.env.AUTH_TOKEN);
