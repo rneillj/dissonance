@@ -1,0 +1,2 @@
+# dissonance
+Dissonance Discord Bot
