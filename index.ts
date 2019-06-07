@@ -7,11 +7,13 @@ const ROLES = "586568749834829876";
 
 // Role IDs
 const SPERGLORDS = "586394644414332954";
+const CATGIRL_LOVERS = "573984177343692822";
 const NSFW = "577114059560976384";
 
 // Emojis
 const EGGPLANT = "🍆";
 const WOW = "wow";
+const FATCAT = "fatcat";
 
 /**
  * Initialize the bot once it has authenticated with Discord.
@@ -52,6 +54,10 @@ function getRole(reaction: MessageReaction, guild: Guild): Role {
         }
         case EGGPLANT: {
             role = guild.roles.get(NSFW);
+            break;
+        }
+        case FATCAT: {
+            role = guild.roles.get(CATGIRL_LOVERS);
             break;
         }
         default: {
