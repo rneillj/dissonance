@@ -1,14 +1,28 @@
-import { Client, TextChannel } from "discord.js";
-
-const THUMBSUP_ROLE = "586352500454588416";
-const MESSAGE = "586306190238154758";
+import { Client, Guild, MessageReaction, Role, TextChannel } from "discord.js";
 
 export const client = new Client();
 
+// Specific message IDs to monitor for emoji reactions.
+const ROLES = "586568749834829876";
+
+// Role IDs
+const SPERGLORDS = "586394644414332954";
+const NSFW = "577114059560976384";
+
+// Emojis
+const EGGPLANT = "🍆";
+const WOW = "wow";
+
+/**
+ * Initialize the bot once it has authenticated with Discord.
+ */
 client.on("ready", async () => {
     console.log(`Logged in as ${client.user.tag}!`);
 });
 
+/**
+ * React to specific text messages.
+ */
 client.on("message", (message) => {
     if (message.content === "ping") {
         message.reply("pong!");
@@ -22,15 +36,45 @@ client.on("message", (message) => {
     }
 });
 
+/**
+ * Function for fetching a role from a guild.
+ *
+ * @param {MessageReaction} reaction - A reaction to a message.
+ * @param {Guild} guild - A Discord server.
+ */
+function getRole(reaction: MessageReaction, guild: Guild): Role {
+    let role = null;
+
+    switch (reaction.emoji.name) {
+        case WOW: {
+            role = guild.roles.get(SPERGLORDS);
+            break;
+        }
+        case EGGPLANT: {
+            role = guild.roles.get(NSFW);
+            break;
+        }
+        default: {
+            console.log("Unable to add role.");
+        }
+    }
+
+    return role;
+}
+
+/**
+ * React to adding specific emoji reactions on text messages.
+ */
 client.on("messageReactionAdd", async (reaction, user) => {
     const guild = reaction.message.guild;
     const guildMember = guild.members.get(user.id);
-    const thumbsUpRole = guild.roles.get(THUMBSUP_ROLE);
 
-    if (reaction.message.id === MESSAGE) {
-        if (reaction.emoji.name === "👍") {
+    if (reaction.message.id === ROLES) {
+        const role = getRole(reaction, guild);
+
+        if (role !== null && role !== undefined) {
             try {
-                await guildMember.addRole(thumbsUpRole);
+                await guildMember.addRole(role);
             } catch (err) {
                 console.log(err);
             }
@@ -38,15 +82,19 @@ client.on("messageReactionAdd", async (reaction, user) => {
     }
 });
 
+/**
+ * React to removing specific emoji reactions on text messages.
+ */
 client.on("messageReactionRemove", async (reaction, user) => {
     const guild = reaction.message.guild;
     const guildMember = guild.members.get(user.id);
-    const thumbsUpRole = guild.roles.get(THUMBSUP_ROLE);
 
-    if (reaction.message.id === MESSAGE) {
-        if (reaction.emoji.name === "👍") {
+    if (reaction.message.id === ROLES) {
+        const role = getRole(reaction, guild);
+
+        if (role !== null && role !== undefined) {
             try {
-                await guildMember.removeRole(thumbsUpRole);
+                await guildMember.removeRole(role);
             } catch (err) {
                 console.log(err);
             }
@@ -54,6 +102,9 @@ client.on("messageReactionRemove", async (reaction, user) => {
     }
 });
 
+/**
+ * This code block allows the bot to listen for reactions to all messages in all channels, cached or otherwise.
+ */
 client.on("raw", packet => {
     // We don"t want this to run on unrelated packets
     if (!["MESSAGE_REACTION_ADD", "MESSAGE_REACTION_REMOVE"].includes(packet.t)) {
