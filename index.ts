@@ -1,19 +1,8 @@
-import { Client, Guild, MessageReaction, Role, TextChannel } from "discord.js";
+import { Client, TextChannel } from "discord.js";
+import { ROLES } from "./constants";
+import { getRole } from "./helpers";
 
-export const client = new Client();
-
-// Specific message IDs to monitor for emoji reactions.
-const ROLES = "586568749834829876";
-
-// Role IDs
-const SPERGLORDS = "586394644414332954";
-const CATGIRL_LOVERS = "573984177343692822";
-const NSFW = "577114059560976384";
-
-// Emojis
-const EGGPLANT = "🍆";
-const WOW = "wow";
-const FATCAT = "fatcat";
+const client = new Client();
 
 /**
  * Initialize the bot once it has authenticated with Discord.
@@ -37,36 +26,6 @@ client.on("message", (message) => {
         message.reply("Did someone say [Thunderfury, Blessed Blade of the Windseeker]?");
     }
 });
-
-/**
- * Function for fetching a role from a guild.
- *
- * @param {MessageReaction} reaction - A reaction to a message.
- * @param {Guild} guild - A Discord server.
- */
-function getRole(reaction: MessageReaction, guild: Guild): Role {
-    let role = null;
-
-    switch (reaction.emoji.name) {
-        case WOW: {
-            role = guild.roles.get(SPERGLORDS);
-            break;
-        }
-        case EGGPLANT: {
-            role = guild.roles.get(NSFW);
-            break;
-        }
-        case FATCAT: {
-            role = guild.roles.get(CATGIRL_LOVERS);
-            break;
-        }
-        default: {
-            console.log("Unable to add role.");
-        }
-    }
-
-    return role;
-}
 
 /**
  * React to adding specific emoji reactions on text messages.
