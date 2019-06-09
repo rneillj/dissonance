@@ -1,6 +1,7 @@
 import { Client, TextChannel } from "discord.js";
 import { ROLES } from "./constants";
 import { getRole } from "./helpers";
+import { searchItems } from "./search";
 
 const client = new Client();
 
@@ -14,7 +15,7 @@ client.on("ready", async () => {
 /**
  * React to specific text messages.
  */
-client.on("message", (message) => {
+client.on("message", async (message) => {
     if (message.content === "ping") {
         message.reply("pong!");
     }
@@ -24,6 +25,19 @@ client.on("message", (message) => {
         const emoji = message.guild.emojis.find((e) => e.name === "thunderfury");
         message.react(emoji);
         message.reply("Did someone say [Thunderfury, Blessed Blade of the Windseeker]?");
+    }
+
+    if (message.content.startsWith("!item")) {
+        const items = await searchItems(message.content.substring(6, message.content.length));
+        const itemCount = items.items.length;
+
+        if (itemCount > 1) {
+            message.reply(`Are one of these items what you were searching for?\n${items}`);
+        } else if (itemCount === 1) {
+            message.reply(`${items[0]}`);
+        } else {
+            message.reply("I could not find your item. RIP");
+        }
     }
 });
 
@@ -101,4 +115,4 @@ client.on("raw", packet => {
     });
 });
 
-client.login(process.env.AUTH_TOKEN);
+client.login(process.env.DISCORD_AUTH_TOKEN);
