@@ -28,15 +28,23 @@ client.on("message", async (message) => {
     }
 
     if (message.content.startsWith("!item")) {
-        const items = await searchItems(message.content.substring(6, message.content.length));
-        const itemCount = items.items.length;
+        const request = message.content.substring(7, message.content.length);
+        let filter;
+
+        if (request.startsWith("\"") && request.endsWith("\"")) {
+            filter = request.substring(1, request.length - 1);
+        }
+
+        const items = await searchItems(request, filter);
+        const itemCount = items.length;
 
         if (itemCount > 1) {
-            message.reply(`Are one of these items what you were searching for?\n${items}`);
+            message.reply(
+                `Are one of these items what you were searching for?\n${items.map((item) => item.name).join(", ")}`);
         } else if (itemCount === 1) {
-            message.reply(`${items[0]}`);
+            message.reply(`https://classic.wowhead.com/item=${items[0].id}`);
         } else {
-            message.reply("I could not find your item. RIP");
+            message.reply("I could not find your item. :rip:");
         }
     }
 });

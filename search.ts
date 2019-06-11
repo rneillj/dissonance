@@ -1,14 +1,8 @@
 import algoliasearch from "algoliasearch";
-import blizzard from "blizzard.js";
 import { isEmpty } from "./helpers";
 
 const algoliaClient = algoliasearch(process.env.ALGOLIA_APP_ID, process.env.ALGOLIA_API_KEY);
 const index = algoliaClient.initIndex("items");
-
-const blizzClient = blizzard.initialize({
-    key: process.env.BLIZZARD_CLIENT_ID,
-    secret: process.env.BLIZZARD_CLIENT_SECRET,
-});
 
 /**
  * This function accepts a string to perform a partial query search with the Algolia API, and
@@ -16,40 +10,21 @@ const blizzClient = blizzard.initialize({
  * options to search for.
  *
  * @param {string} query - The string to use for partial searching.
+ * @param {string} filger - Exact filter to match results on.
  */
-export async function searchItems(query: string): Promise<any> {
+export async function searchItems(query: string, filter: string): Promise<any> {
     let results: algoliasearch.Response;
 
     try {
         results = await index.search({ query });
     } catch (err) {
-        return {
-            items: [],
-        };
+        return [];
     }
 
-    if (!isEmpty(results)) {
-        if (results.nbHits === 1) {
-            try {
-                const item = await blizzClient.wow.item({ id: results.hits[0].id });
-                return {
-                    items: [item],
-                };
-            } catch (err) {
-                console.log(err);
-
-                return {
-                    items: [],
-                };
-            }
-        } else {
-            return {
-                items: results.hits,
-            };
-        }
+    const response = results.hits;
+    if (!isEmpty(filter)) {
+        return response.filter((res) => res.name === filter);
     }
 
-    return {
-        items: [],
-    };
+    return response;
 }
